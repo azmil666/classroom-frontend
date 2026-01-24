@@ -11,13 +11,14 @@ import "./App.css";
 import { Toaster } from "./components/refine-ui/notification/toaster";
 import { useNotificationProvider } from "./components/refine-ui/notification/use-notification-provider";
 import { ThemeProvider } from "./components/refine-ui/theme/theme-provider";
-import { dataProvider } from "./providers/data";
+
 import Dashboard from "@/pages/dashboard.tsx";
 import {Home} from "lucide-react";
 import { Layout } from "./components/refine-ui/layout/layout";
 import {BookOpen} from "lucide-react";
 import SubjectsList from "./pages/subjects/list";
 import SubjectsCreate from "./pages/subjects/create";
+import {dataProvider} from "@/providers/data.ts";
 
 
 function App() {
