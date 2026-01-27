@@ -11,6 +11,7 @@ function UploadWidget({
                       }: UploadWidgetProps) {
     const widgetRef = useRef<CloudinaryWidget | null>(null);
     const onChangeRef = useRef(onChange);
+    const lastUploadedPublicIdRef = useRef<string | null>(null);
 
     const [preview, setPreview] = useState<UploadWidgetValue | null>(value);
     const [deleteToken, setDeleteToken] = useState<string | null>(null);
@@ -24,7 +25,7 @@ function UploadWidget({
     // Sync external value → internal preview
     useEffect(() => {
         setPreview(value);
-        if (!value) {
+        if (!value || value.publicId !== lastUploadedPublicIdRef.current) {
             setDeleteToken(null);
         }
     }, [value]);
@@ -53,6 +54,7 @@ function UploadWidget({
                         };
 
                         setPreview(payload);
+                        lastUploadedPublicIdRef.current = result.info.public_id ?? null;
                         setDeleteToken(result.info.delete_token ?? null);
                         onChangeRef.current?.(payload);
                     }
@@ -102,6 +104,7 @@ function UploadWidget({
         } finally {
             setPreview(null);
             setDeleteToken(null);
+            lastUploadedPublicIdRef.current = null;
             onChangeRef.current?.(null);
             setIsRemoving(false);
         }
