@@ -1,49 +1,88 @@
-import { BaseRecord, DataProvider, GetListParams, GetListResponse } from "@refinedev/core";
-import { Subject } from "../types";
+import { createDataProvider, CreateDataProviderOptions } from "@refinedev/rest";
 
-const subjects: Subject[] = [
-  {
-    id: 1,
-    code: "CS101",
-    name: "Introduction to Computer Science",
-    department: "Computer Science",
-    description: "A foundational course on the principles of computer science, covering topics such as algorithms, data structures, and programming concepts.",
-    createdAt: "2024-01-01T00:00:00Z"
+import { CreateResponse, GetOneResponse, ListResponse } from "@/types";
+import { BACKEND_BASE_URL } from "@/constants";
+
+const options: CreateDataProviderOptions = {
+  getList: {
+    getEndpoint: ({ resource }) => resource,
+
+    buildQueryParams: async ({ resource, pagination, filters }) => {
+      const params: Record<string, string | number> = {};
+
+      if (pagination?.mode !== "off") {
+        const page = pagination?.currentPage ?? 1;
+        const pageSize = pagination?.pageSize ?? 10;
+
+        params.page = page;
+        params.limit = pageSize;
+      }
+
+      filters?.forEach((filter) => {
+        const field = "field" in filter ? filter.field : "";
+        const value = String(filter.value);
+
+        if (field === "role") {
+          params.role = value;
+        }
+
+        if (resource === "departments") {
+          if (field === "name" || field === "code") params.search = value;
+        }
+
+        if (resource === "users") {
+          if (field === "search" || field === "name" || field === "email") {
+            params.search = value;
+          }
+        }
+
+        if (resource === "subjects") {
+          if (field === "department") params.department = value;
+          if (field === "name" || field === "code") params.search = value;
+        }
+
+        if (resource === "classes") {
+          if (field === "name") params.search = value;
+          if (field === "subject") params.subject = value;
+          if (field === "teacher") params.teacher = value;
+        }
+      });
+
+      return params;
+    },
+
+    mapResponse: async (response) => {
+      const payload: ListResponse = await response.json();
+      return payload.data ?? [];
+    },
+
+    getTotalCount: async (response) => {
+      const payload: ListResponse = await response.json();
+      return payload.pagination?.total ?? payload.data?.length ?? 0;
+    },
   },
-  {
-    id: 2,
-    code: "MATH203",
-    name: "Linear Algebra",
-    department: "Mathematics",
-    description: "An introduction to linear algebra, including vector spaces, matrices, determinants, and eigenvalues.",
-    createdAt: "2024-01-01T00:00:00Z"
-  },
-  {
-    id: 3,
-    code: "PHYS101",
-    name: "General Physics I",
-    department: "Physics",
-    description: "A comprehensive introduction to classical mechanics, including kinematics, Newton's laws, energy, and momentum.",
-    createdAt: "2024-01-01T00:00:00Z"
-  }
-];
 
-export const dataProvider : DataProvider = {
-  getList: async <TData extends BaseRecord = BaseRecord>({ resource }:
-  GetListParams) : Promise<GetListResponse<TData>> => {
-    if(resource !== 'subjects') return { data: [] as TData[], total: 0 };
+  create: {
+    getEndpoint: ({ resource }) => resource,
 
-    return {
-      data: subjects as unknown as TData[],
-      total: subjects.length,
-    }
+    buildBodyParams: async ({ variables }) => variables,
 
+    mapResponse: async (response) => {
+      const json: CreateResponse = await response.json();
+      return json.data ?? {};
+    },
   },
 
-  getOne: async () => {throw new Error('This function is not present in mock') },
-  create: async () => {throw new Error('This function is not present in mock') },
-  update: async () => {throw new Error('This function is not present in mock') },
-  deleteOne: async () => {throw new Error('This function is not present in mock') },
+  getOne: {
+    getEndpoint: ({ resource, id }) => `${resource}/${id}`,
 
-  getApiUrl: () => '',
-}
+    mapResponse: async (response) => {
+      const json: GetOneResponse = await response.json();
+      return json.data ?? {};
+    },
+  },
+};
+
+const { dataProvider } = createDataProvider(BACKEND_BASE_URL, options);
+
+export { dataProvider };
