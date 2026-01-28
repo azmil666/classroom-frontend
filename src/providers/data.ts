@@ -2,8 +2,6 @@ import { createDataProvider, CreateDataProviderOptions } from "@refinedev/rest";
 
 import { CreateResponse, GetOneResponse, ListResponse } from "@/types";
 import { BACKEND_BASE_URL } from "@/constants";
-import {Connect} from "vite";
-import NextFunction = Connect.NextFunction;
 import {HttpError} from "@refinedev/core";
 
 if (!BACKEND_BASE_URL)
@@ -22,8 +20,9 @@ const builtHttpError = async (response: Response): Promise<HttpError> => {
   }
   return {
     message,
-    StatusCode: response.status
-  }
+    statusCode: response.status,
+  };
+
 }
 const options: CreateDataProviderOptions = {
   getList: {
