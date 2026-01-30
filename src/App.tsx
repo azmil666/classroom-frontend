@@ -3,7 +3,7 @@ import { DevtoolsProvider } from "@refinedev/devtools";
 import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
 
 import routerProvider, {
-    DocumentTitleHandler,
+
     NavigateToResource,
     UnsavedChangesNotifier,
 } from "@refinedev/react-router";
@@ -41,9 +41,15 @@ import FacultyShow from "./pages/faculty/show";
 import EnrollmentsCreate from "./pages/enrollments/create";
 import EnrollmentsJoin from "./pages/enrollments/join";
 import EnrollmentConfirm from "./pages/enrollments/confirm";
+import { useEffect } from "react";
 
 function App() {
+    useEffect(() => {
+        document.title = "UniOS";
+    }, []);
+
     return (
+
         <BrowserRouter>
             <RefineKbarProvider>
                 <ThemeProvider>
@@ -56,7 +62,10 @@ function App() {
                             options={{
                                 syncWithLocation: true,
                                 warnWhenUnsavedChanges: true,
-                                projectId: "kkWuv7-GgBIfw-P8CGy0",
+
+                                title: {
+                                    text: "UniOS",
+                                },
                             }}
                             resources={[
                                 {
@@ -174,7 +183,7 @@ function App() {
                             <Toaster />
                             <RefineKbar />
                             <UnsavedChangesNotifier />
-                            <DocumentTitleHandler />
+
                         </Refine>
                     </DevtoolsProvider>
                 </ThemeProvider>
